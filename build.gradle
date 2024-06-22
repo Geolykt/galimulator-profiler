@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'gsl-starplane' version '0.2.0-a20240601.1'
+}
+
+group 'de.geolykt'
+version '0.0.1-SNAPSHOT'
+
+targetCompatibility = compileJava.targetCompatibility = sourceCompatibility = compileJava.sourceCompatibility = '1.8'
+
+repositories {
+    mavenLocal()
+    maven {
+        name 'stianloader'
+        url 'https://stianloader.org/maven'
+    }
+    mavenCentral()
+}
+
+starplane {
+    eclipseEEA = rootProject.file("src/eclipse-eea")
+}
+
+runMods {
+    from jar
+}
+
+configurations {
+    dependencyMods
+    compileOnlyApi.extendsFrom(dependencyMods)
+    compileOnlyApi.extendsFrom(devRuntime)
+    compileOnlyApi.extendsFrom(galimulatorDependencies)
+}
+
+deployMods {
+    from configurations["dependencyMods"]
+}
+
+dependencies {
+    // The versions of SLAPI are listed here: https://stianloader.org/maven/de/geolykt/starloader-api/
+    dependencyMods("de.geolykt:starloader-api:2.0.0")
+    // The versions of launcher-micromixin are listed here: https://stianloader.org/maven/org/stianloader/launcher-micromixin/
+    devRuntime "org.stianloader:launcher-micromixin:4.0.0-a20240618.1"
+    compileOnly "org.stianloader:micromixin-annotations:0.6.0-a20240618"
+    compileOnly "de.geolykt.starloader:starplane-annotations:1.0.0"
+    compileOnlyApi "org.jetbrains:annotations:24.1.0"
+
+    // https://mvnrepository.com/artifact/tools.profiler/async-profiler
+    compileOnly "tools.profiler:async-profiler:3.0"
+}
+
+remapJar {
+    archiveClassifier = 'remapped'
+    fromJar jar
+}
+
+build {
+    dependsOn remapJar
+}
+
+// The below block is only really needed when shading in external dependencies, see
+// https://github.com/Starloader-project/GslStarplane/tree/6a3c5e0e190fb948badac89469012e2a172fcb90?tab=readme-ov-file#dealing-with-shaded-dependencies
+// However, having this block generally doesn't hurt for as long as you are aware of
+// the differences of api/implementation and compileOnlyApi/compileOnly.
+genEclipseRuns {
+    additionalRuntimeDependency("main", configurations["runtimeClasspath"])
+}

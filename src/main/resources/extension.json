@@ -1,0 +1,24 @@
+{
+  "entrypoint": "de.geolykt.galimprofiler.GalimProfiler",
+  "name": "profiler",
+  "version": "0.1.0",
+  "dependencies": [
+    "StarloaderAPI"
+  ],
+  "externalDependencies" : {
+    "repositories" : [ {
+      "name" : "stianloader",
+      "url" : "https://stianloader.org/maven/",
+      "mirrorable": false
+    }, {
+      "name" : "Central",
+      "url" : "https://repo1.maven.org/maven2/",
+      "mirrorOnly": false
+    }, {
+      "name" : "stianloader-central-mirror",
+      "url" : "https://stianloader.org/central-mirror/",
+      "mirrorable": false
+    } ],
+    "artifacts" : [ "tools.profiler:async-profiler:3.0" ]
+  }
+}

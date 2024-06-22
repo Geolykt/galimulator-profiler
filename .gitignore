@@ -1,0 +1,21 @@
+# Ignore Gradle build output directory
+build
+
+# Ignore galimulator jar (DO NOT UPLOAD IT)
+galimulator-desktop.jar
+
+# Ignore dotfiles
+.*
+
+# Unignore the gitignore
+!.gitignore
+
+# Ignore launch files
+*.launch
+mods/
+run/
+*.dat
+data
+
+# Ignore eclipse output dir (I am not exactly sure why it wants to generate it, usually it does not)
+bin
