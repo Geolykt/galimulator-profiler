@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'gsl-starplane' version '0.2.0-a20240601.1'
+    id 'maven-publish'
 }
 
 group 'de.geolykt'
@@ -57,6 +58,32 @@ remapJar {
 
 build {
     dependsOn remapJar
+}
+
+publish {
+    dependsOn publishToMavenLocal // Gradle doesn't quite like this line but otherwise I get issues when publishing so what gives?
+}
+
+publishing {
+    publications {
+        plugin(MavenPublication) { publication ->
+            groupId project.group
+            artifactId project.base.archivesName.get()
+
+            from components['java']
+            artifact remapJar
+        }
+    }
+    repositories {
+        if (System.getProperty('publishRepo') != null) {
+            maven {
+                url System.getProperty('publishRepo')
+                allowInsecureProtocol = true
+            }
+        } else {
+            mavenLocal()
+        }
+    }
 }
 
 // The below block is only really needed when shading in external dependencies, see
