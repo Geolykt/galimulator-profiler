@@ -41,11 +41,13 @@ public class ProfilerView {
         RunnableCanvasButton setIntervalButton = new RunnableCanvasButton(viewManager::setInterval, "Set sampling interval", 200, 50);
         RunnableCanvasButton setProfilerMode = new RunnableCanvasButton(viewManager::setProfilerMode, "Set profiler mode", 200, 50);
         RunnableCanvasButton setLagspikeThreshold = new RunnableCanvasButton(viewManager::setLagspikeThreshold, "Set lagspike threshold", 200, 50);
+        RunnableCanvasButton setProfilerEvent = new RunnableCanvasButton(viewManager::setProfilerEvent, "Set profiler event", 200, 50);
 
         @NotNull CanvasContext[] buttonStripUpper = {
                 setProfilerMode,
                 setIntervalButton,
-                setLagspikeThreshold
+                setLagspikeThreshold,
+                setProfilerEvent
         };
 
         RunnableCanvasButton startProfilerButton = new RunnableCanvasButton(viewManager::startProfiler, "Start profiler", 200, 50)
@@ -197,6 +199,24 @@ public class ProfilerView {
             .build();
     }
 
+    private void setProfilerEvent() {
+        if (ProfilerData.state != ProfilerMode.STOPPED) {
+            Drawing.toast("Cannot set profiler event: The profiler is already running.");
+            return;
+        }
+        Canvas canvas = this.canvas;
+        canvas.closeCanvas();
+        new BasicDialogBuilder("Choose profiler event", "Choose profiler event")
+            .setChoices(Arrays.asList(Events.ALLOC, Events.CPU, Events.CTIMER, Events.ITIMER, Events.LOCK, Events.WALL))
+            .addCloseListener((cause, option) -> {
+                if (option != null) {
+                    ProfilerData.profilerEvent = option;
+                }
+                CanvasManager.getInstance().openCanvas(canvas, CanvasPosition.CENTER);
+            })
+            .buildAndShowNow();
+    }
+
     private void setProfilerMode() {
         if (ProfilerData.state != ProfilerMode.STOPPED) {
             Drawing.toast("Cannot set profiler mode: The profiler is already running.");
@@ -226,7 +246,7 @@ public class ProfilerView {
 
         switch (ProfilerData.mode) {
         case CONTINUOUS:
-            AsyncProfiler.getInstance().start(Events.CPU, ProfilerData.samplingInterval);
+            AsyncProfiler.getInstance().start(ProfilerData.profilerEvent, ProfilerData.samplingInterval);
             break;
         default:
             throw new IllegalStateException("Unknown profiler mode: " + ProfilerData.mode);

@@ -2,6 +2,8 @@ package de.geolykt.galimprofiler;
 
 import org.jetbrains.annotations.NotNull;
 
+import one.profiler.Events;
+
 public class ProfilerData {
 
     public static enum ProfilerMode {
@@ -15,5 +17,6 @@ public class ProfilerData {
     public static ProfilerMode mode = ProfilerMode.CONTINUOUS;
     @NotNull
     public static ProfilerMode state = ProfilerMode.STOPPED;
-
+    @NotNull
+    public static String profilerEvent = Events.CPU;
 }
