@@ -1,12 +1,12 @@
 plugins {
     id 'java'
     id 'java-library'
-    id 'gsl-starplane' version '0.2.0-a20240601.1'
+    id 'gsl-starplane' version '0.2.0-a20240711'
     id 'maven-publish'
 }
 
 group 'de.geolykt'
-version '0.0.1-SNAPSHOT'
+// Note: Version is defined in the gradle.properties file
 
 targetCompatibility = compileJava.targetCompatibility = sourceCompatibility = compileJava.sourceCompatibility = '1.8'
 
@@ -40,7 +40,7 @@ deployMods {
 
 dependencies {
     // The versions of SLAPI are listed here: https://stianloader.org/maven/de/geolykt/starloader-api/
-    dependencyMods("de.geolykt:starloader-api:2.0.0")
+    dependencyMods("de.geolykt:starloader-api:2.0.0-a20240705")
     // The versions of launcher-micromixin are listed here: https://stianloader.org/maven/org/stianloader/launcher-micromixin/
     devRuntime "org.stianloader:launcher-micromixin:4.0.0-a20240627"
     compileOnly "org.stianloader:micromixin-annotations:0.6.0-a20240618"
@@ -48,7 +48,7 @@ dependencies {
     compileOnlyApi "org.jetbrains:annotations:24.1.0"
 
     // https://mvnrepository.com/artifact/tools.profiler/async-profiler
-    compileOnly "tools.profiler:async-profiler:3.0"
+    compileOnly "tools.profiler:async-profiler:${asyncProfilerVersion}"
 }
 
 remapJar {
@@ -86,10 +86,12 @@ publishing {
     }
 }
 
-// The below block is only really needed when shading in external dependencies, see
-// https://github.com/Starloader-project/GslStarplane/tree/6a3c5e0e190fb948badac89469012e2a172fcb90?tab=readme-ov-file#dealing-with-shaded-dependencies
-// However, having this block generally doesn't hurt for as long as you are aware of
-// the differences of api/implementation and compileOnlyApi/compileOnly.
+processResources {
+    filesMatching("extension.json") {
+        expand(project.properties)
+    }
+}
+
 genEclipseRuns {
-    additionalRuntimeDependency("main", configurations["runtimeClasspath"])
+    propertyExpansionSource = project.file("gradle.properties")
 }

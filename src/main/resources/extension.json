@@ -1,7 +1,7 @@
 {
   "entrypoint": "de.geolykt.galimprofiler.GalimProfiler",
   "name": "profiler",
-  "version": "0.1.0",
+  "version": "${version}",
   "dependencies": [
     "StarloaderAPI"
   ],
@@ -19,6 +19,6 @@
       "url" : "https://stianloader.org/central-mirror/",
       "mirrorable": false
     } ],
-    "artifacts" : [ "tools.profiler:async-profiler:3.0" ]
+    "artifacts" : [ "tools.profiler:async-profiler:${asyncProfilerVersion}" ]
   }
 }
