@@ -5,17 +5,19 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
-import org.stianloader.micromixin.transform.internal.util.Objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
 import de.geolykt.galimprofiler.GalimProfiler;
 import de.geolykt.galimprofiler.ProfilerData;
+import de.geolykt.galimprofiler.ProfilerData.OutputType;
 import de.geolykt.galimprofiler.ProfilerData.ProfilerMode;
 import de.geolykt.starloader.api.Galimulator;
 import de.geolykt.starloader.api.gui.BasicDialogBuilder;
@@ -48,6 +50,25 @@ public class ProfilerView {
                 setIntervalButton,
                 setLagspikeThreshold,
                 setProfilerEvent
+        };
+
+        AtomicReference<RunnableCanvasButton> backtraceViewButtonRef = new AtomicReference<>();
+        AtomicReference<RunnableCanvasButton> outputTypeButtonRef = new AtomicReference<>();
+
+        RunnableCanvasButton backtraceViewButton = new RunnableCanvasButton(() -> {
+            backtraceViewButtonRef.get().setText("Backtrace: " + (ProfilerData.backtrace = !ProfilerData.backtrace));
+        }, "Backtrace: " + ProfilerData.backtrace, 200, 50);
+        RunnableCanvasButton outputTypeButton = new RunnableCanvasButton(() -> {
+            ProfilerData.output = OutputType.values()[(ProfilerData.output.ordinal() + 1) % OutputType.values().length];
+            outputTypeButtonRef.get().setText("Output: " + ProfilerData.output);
+        }, "Output: " + ProfilerData.output, 200, 50);
+
+        backtraceViewButtonRef.lazySet(backtraceViewButton);
+        outputTypeButtonRef.lazySet(outputTypeButton);
+
+        @NotNull CanvasContext[] buttonStripCenter = {
+                backtraceViewButton,
+                outputTypeButton
         };
 
         RunnableCanvasButton startProfilerButton = new RunnableCanvasButton(viewManager::startProfiler, "Start profiler", 200, 50)
@@ -119,13 +140,14 @@ public class ProfilerView {
         };
 
         @NotNull Canvas[] children = {
-                cmgr.childCanvas(cmgr.dummyContext(1, 530)),
+                cmgr.childCanvas(cmgr.dummyContext(1, 480)),
                 cmgr.childCanvas(lagspikeThreshold),
                 cmgr.childCanvas(samplingIntervalInfo),
                 cmgr.childCanvas(profilerSamplesInfo),
                 cmgr.childCanvas(profilerModeInfo),
                 cmgr.childCanvas(profilerStateInfo),
                 cmgr.multiCanvas(cmgr.dummyContext(800, 50), CanvasSettings.CHILD_TRANSPARENT, ChildObjectOrientation.LEFT_TO_RIGHT, buttonStripLower),
+                cmgr.multiCanvas(cmgr.dummyContext(800, 50), CanvasSettings.CHILD_TRANSPARENT, ChildObjectOrientation.LEFT_TO_RIGHT, buttonStripCenter),
                 cmgr.multiCanvas(cmgr.dummyContext(800, 50), CanvasSettings.CHILD_TRANSPARENT, ChildObjectOrientation.LEFT_TO_RIGHT, buttonStripUpper),
                 cmgr.newCanvas(new VersionStringContext(modInstance), CanvasSettings.CHILD_TRANSPARENT)
         };
@@ -149,7 +171,22 @@ public class ProfilerView {
         // Available options defined in:
         // https://github.com/async-profiler/async-profiler/blame/9660e15b1e4cb38389aff56f7a9e4aea8decb779/src/arguments.cpp#L48
         try {
-            this.writeAndOpenFlamegraph(AsyncProfiler.getInstance().execute("flamegraph,sig"));
+            String command;
+            if (ProfilerData.output == OutputType.CALLGRAPH) {
+                command = "tree";
+            } else if (ProfilerData.output == OutputType.FLAMEGRAPH) {
+                command = "flamegraph";
+            } else {
+                throw new IllegalStateException("Unknown output type: " + ProfilerData.output);
+            }
+
+            command += ",sig";
+
+            if (ProfilerData.backtrace) {
+                command += ",reverse";
+            }
+
+            this.writeAndOpenHtml(AsyncProfiler.getInstance().execute(command));
         } catch (IllegalArgumentException | IllegalStateException | IOException e) {
             LoggerFactory.getLogger(ProfilerView.class).error("Unable to dump profiler results", e);
             Drawing.toast("Unable to dump profiler results. See logs for details.");
@@ -265,7 +302,7 @@ public class ProfilerView {
         AsyncProfiler.getInstance().stop();
     }
 
-    private void writeAndOpenFlamegraph(String code) throws IOException {
+    private void writeAndOpenHtml(String code) throws IOException {
         if (code == null) {
             throw new IllegalArgumentException("Flamegraph output is null");
         }

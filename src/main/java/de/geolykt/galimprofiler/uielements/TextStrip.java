@@ -1,7 +1,8 @@
 package de.geolykt.galimprofiler.uielements;
 
+import java.util.Objects;
+
 import org.jetbrains.annotations.NotNull;
-import org.stianloader.micromixin.transform.internal.util.Objects;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
