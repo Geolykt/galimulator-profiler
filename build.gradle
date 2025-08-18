@@ -40,12 +40,16 @@ deployMods {
 
 dependencies {
     // The versions of SLAPI are listed here: https://stianloader.org/maven/de/geolykt/starloader-api/
-    dependencyMods("de.geolykt:starloader-api:2.0.0-a20240728.1")
+    dependencyMods("de.geolykt:starloader-api:2.0.0-a20250703")
     // The versions of launcher-micromixin are listed here: https://stianloader.org/maven/org/stianloader/launcher-micromixin/
-    devRuntime "org.stianloader:launcher-micromixin:4.0.0-a20240808.1"
-    compileOnly "org.stianloader:micromixin-annotations:0.6.3-a20240808"
-    compileOnly "de.geolykt.starloader:starplane-annotations:1.0.0"
-    compileOnlyApi "org.jetbrains:annotations:24.1.0"
+    devRuntime "org.stianloader:launcher-micromixin:4.0.0-a20241104"
+
+    // The two dependencies below have been hidden for now. They are not in use by this mod.
+    //compileOnly "org.stianloader:micromixin-annotations:0.6.3-a20240808"
+    //compileOnly "de.geolykt.starloader:starplane-annotations:1.0.0"
+
+    // https://mvnrepository.com/artifact/org.jetbrains/annotations
+    compileOnlyApi "org.jetbrains:annotations:26.0.2"
 
     // https://mvnrepository.com/artifact/tools.profiler/async-profiler
     compileOnly "tools.profiler:async-profiler:${asyncProfilerVersion}"
