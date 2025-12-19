@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'java-library'
-    id 'gsl-starplane' version '0.2.0-a20240713.1'
+    id 'gsl-starplane' version '0.2.3-a20251219'
     id 'maven-publish'
 }
 
@@ -40,7 +40,7 @@ deployMods {
 
 dependencies {
     // The versions of SLAPI are listed here: https://stianloader.org/maven/de/geolykt/starloader-api/
-    dependencyMods("de.geolykt:starloader-api:2.0.0-a20250703")
+    dependencyMods("de.geolykt:starloader-api:2.0.0-a20251219")
     // The versions of launcher-micromixin are listed here: https://stianloader.org/maven/org/stianloader/launcher-micromixin/
     devRuntime "org.stianloader:launcher-micromixin:4.0.0-a20241104"
 
@@ -49,7 +49,7 @@ dependencies {
     //compileOnly "de.geolykt.starloader:starplane-annotations:1.0.0"
 
     // https://mvnrepository.com/artifact/org.jetbrains/annotations
-    compileOnlyApi "org.jetbrains:annotations:26.0.2"
+    compileOnlyApi "org.jetbrains:annotations:26.0.2-1"
 
     // https://mvnrepository.com/artifact/tools.profiler/async-profiler
     compileOnly "tools.profiler:async-profiler:${asyncProfilerVersion}"
